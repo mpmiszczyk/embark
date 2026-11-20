@@ -1367,7 +1367,13 @@ first line of the documentation string; for keyboard macros use
    (cond
     ((or (stringp cmd) (vectorp cmd)) (key-description cmd))
     ((stringp (car-safe cmd)) (car cmd))
-    ((eq (car-safe cmd) 'menu-item) (eval (cadr cmd)))
+    ((eq (car-safe cmd) 'menu-item)
+     ;; `bind-key' with `:filter' makes menu items with an empty title;
+     ;; name those after the command they resolve to.
+     (let ((title (eval (cadr cmd))))
+       (if (and (stringp title) (not (string-empty-p title)))
+           title
+         (embark--command-name (keymap--menu-item-binding cmd)))))
     ((keymapp cmd)
      (propertize (if (symbolp cmd) (format "+%s" cmd) "<keymap>")
                  'face 'embark-keymap))
@@ -1431,7 +1437,11 @@ If NESTED is non-nil subkeymaps are not flattened."
                                       negative-argument digit-argument))
                    collect (list name cmd key
                                  (concat
-                                  (if (eq (car-safe def) 'menu-item)
+                                  ;; Only menu bar items have keys that
+                                  ;; cannot be typed.
+                                  (if (and (eq (car-safe def) 'menu-item)
+                                           (memq (aref key 0)
+                                                 '(menu-bar tool-bar tab-bar)))
                                       "menu-item"
                                     (key-description key))))))
          (width (cl-loop for (_name _cmd _key desc) in commands

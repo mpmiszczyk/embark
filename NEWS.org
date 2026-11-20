@@ -13,6 +13,10 @@
 - New =embark-auto-prefix-help-mode=, a global minor mode similar
   to =which-key-mode= but that prompts you for a command or key binding
   under the current prefix using completion.
+- =embark-bindings= and =embark-prefix-help-command= now show the key
+  and the command name for =menu-item= bindings with an empty title,
+  such as those made by =bind-key= and =use-package= with =:filter=.
+  Previously they appeared as "menu-item" with no name.
 * Version 1.2 (2026-04-04)
 - Acted-on minibuffer candidates now get recorded in the minibuffer
   history.  You can configure which actions record history via the new
